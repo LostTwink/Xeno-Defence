@@ -137,8 +137,24 @@ public class WaveManager : MonoBehaviour
     public void StopAllWaves()
     {
         StopAllCoroutines();
-        waveActive = false;//?
-        currentWave = 0;//?
-        //despawn skeletons
+        waveActive = false;
+        currentWave = 0;
+
+        // Despawn/kill all spawned skeletons in the scene (modern API)
+        SkeletonController[] skeletons = UnityEngine.Object.FindObjectsByType<SkeletonController>(FindObjectsSortMode.None);
+        foreach (SkeletonController sk in skeletons)
+        {
+            if (sk == null) continue;
+            Health h = sk.GetComponent<Health>();
+            if (h != null && !h.isDead)
+            {
+                // Apply remaining health as damage so Die() executes and EnemyManager count updates
+                h.TakeDamage(h.currentHealth);
+            }
+            else
+            {
+                Destroy(sk.gameObject);
+            }
+        }
     }
 }
