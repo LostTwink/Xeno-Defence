@@ -31,20 +31,21 @@ public class WaveManager : MonoBehaviour
         {
             Debug.LogError("WaveManager: Exactly 4 spawners required!");
         }
-        StartCoroutine(StartWave1());
         currentInfiniteInterval = initialInfiniteInterval;
     }
 
-    IEnumerator StartWave1()
+    public IEnumerator StartWave1()
     {
+        //задержка перед началом N раз по секунде с выводом в UI
         yield return new WaitUntil(() => EnemyManager.Instance.aliveEnemies == 0);
         currentWave = 1;
         Debug.Log("Wave 1 started!");
         StartCoroutine(SpawnWave(0, wave1Enemies, wave1SpawnInterval)); // Одна сторона (index 0)
     }
 
-    IEnumerator StartWave2()
+    public IEnumerator StartWave2()
     {
+        //задержка перед началом N раз по секунде с выводом в UI
         yield return new WaitUntil(() => EnemyManager.Instance.aliveEnemies == 0);
         currentWave = 2;
         Debug.Log("Wave 2 started!");
@@ -53,8 +54,9 @@ public class WaveManager : MonoBehaviour
         StartCoroutine(SpawnWave(1, wave2EnemiesPerSide, wave2SpawnInterval)); // Две стороны
     }
 
-    IEnumerator StartInfiniteWave()
+    public IEnumerator StartInfiniteWave()
     {
+        //задержка перед началом N раз по секунде с выводом в UI
         yield return new WaitUntil(() => EnemyManager.Instance.aliveEnemies == 0);
         currentWave = 3;
         Debug.Log("Infinite Wave 3 started!");
@@ -81,7 +83,7 @@ public class WaveManager : MonoBehaviour
         waveActive = false;
     }
 
-    IEnumerator SpawnInfiniteWave()
+    public IEnumerator SpawnInfiniteWave()
     {
         int spawnedSinceDecrease = 0;
         while (true) // Бесконечно
@@ -103,19 +105,11 @@ public class WaveManager : MonoBehaviour
             yield return new WaitForSeconds(currentInfiniteInterval);
         }
     }
-
-    void Update()
+    public void StopAllWaves()
     {
-        if (!waveActive && EnemyManager.Instance.aliveEnemies == 0)
-        {
-            if (currentWave == 1)
-            {
-                StartCoroutine(StartWave2());
-            }
-            else if (currentWave == 2)
-            {
-                StartCoroutine(StartInfiniteWave());
-            }
-        }
+        StopAllCoroutines();
+        waveActive = false;//?
+        currentWave = 0;//?
+        //despawn skeletons
     }
 }
