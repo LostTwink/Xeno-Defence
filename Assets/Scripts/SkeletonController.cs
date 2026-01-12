@@ -15,7 +15,7 @@ public class SkeletonController : MonoBehaviour
     private GameObject currentAttackTarget;
     private float lastAttackTime;
 
-    void Awake()
+    public void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         health = GetComponent<Health>();
