@@ -23,7 +23,7 @@ public class WaveManager : MonoBehaviour
     public int enemiesBeforeIntervalDecrease = 10;
 
     [Header("Pre-Wave Countdown")]
-    public int preWaveCountdownSeconds = 3; // N раз по секунде
+    public int preWaveCountdownSeconds = 10; // N раз по секунде
     public UnityEvent<int> onPreWaveCountdownTick; // Invoked each second with remaining seconds
     public UnityEvent onPreWaveCountdownFinished; // Invoked when countdown completes
 
@@ -48,6 +48,8 @@ public class WaveManager : MonoBehaviour
         currentWave = 1;
         Debug.Log("Wave 1 started!");
         StartCoroutine(SpawnWave(0, wave1Enemies, wave1SpawnInterval)); // Одна сторона (index 0)
+        yield return null; 
+        StartCoroutine(StartWave2());
     }
 
     public IEnumerator StartWave2()
@@ -58,8 +60,10 @@ public class WaveManager : MonoBehaviour
         currentWave = 2;
         Debug.Log("Wave 2 started!");
         StartCoroutine(SpawnWave(0, wave2EnemiesPerSide, wave2SpawnInterval));
-        yield return null; // Параллельно
+        yield return null; 
         StartCoroutine(SpawnWave(1, wave2EnemiesPerSide, wave2SpawnInterval)); // Две стороны
+        yield return null; 
+        StartCoroutine(StartInfiniteWave());
     }
 
     public IEnumerator StartInfiniteWave()
@@ -71,8 +75,6 @@ public class WaveManager : MonoBehaviour
         Debug.Log("Infinite Wave 3 started!");
         StartCoroutine(SpawnInfiniteWave());
     }
-
-    // Countdown invoked before waves start. Ticks once per second.
     public IEnumerator PreWaveCountdown(int seconds)
     {
         if (seconds <= 0)

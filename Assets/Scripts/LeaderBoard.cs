@@ -71,6 +71,8 @@ public class Leaderboard : MonoBehaviour
 
     public void SendNewValue(float value)
     {
+        if (value < 1)
+            return;
         pendingValue = value;
         ChangeRecordInputState(true);
     }

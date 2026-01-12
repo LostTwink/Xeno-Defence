@@ -5,13 +5,10 @@ using static EventBus;
 
 public class TDManager : MonoBehaviour
 {
-    private bool inGame;
-    private bool gameReseted;
-    private float waveTimer;
+    private bool inGame = false;
 
     public WaveManager WaveManager;
     public float inGameTimer;
-    public int waveNumber;
 
     public Vector3 startPosition;
     public Vector3 playPosition;
@@ -25,14 +22,7 @@ public class TDManager : MonoBehaviour
     public void Update()
     {
         if (inGame)
-        {
-            HandleWave();
             inGameTimer += Time.deltaTime;
-        }
-        else if (!gameReseted)
-        {
-            //??
-        }
     }
     public void HandleGameStateChange(object sender, GameStateChangedEventArgs arg)
     {
@@ -40,7 +30,7 @@ public class TDManager : MonoBehaviour
         if (inGame)
         {
             Player.position = playPosition;
-            gameReseted = false;//??
+            StartCoroutine(WaveManager.StartWave1());
         }
         else
         {
@@ -51,26 +41,7 @@ public class TDManager : MonoBehaviour
     public void ResetGame()
     {
         inGameTimer = 0f;
-        waveNumber = 0;
         Player.position = startPosition;
-        gameReseted = true;
         WaveManager.StopAllWaves();
-    }
-    public void HandleWave()
-    {
-        if (waveNumber == 0)
-        {
-            waveNumber++;
-            WaveManager.StartCoroutine(WaveManager.StartWave1());
-        }
-        else if (waveNumber == 1)
-        {
-            waveNumber++;
-            WaveManager.StartCoroutine(WaveManager.StartWave2());
-        }
-        else
-        {
-            WaveManager.StartCoroutine(WaveManager.SpawnInfiniteWave());
-        }
     }
 }
