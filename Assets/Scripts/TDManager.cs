@@ -8,11 +8,9 @@ public class TDManager : MonoBehaviour
     private bool inGame;
     private bool gameReseted;
     private float waveTimer;
-    private float breakTimer;
 
     public WaveManager WaveManager;
     public float inGameTimer;
-    public float breakTime;
     public int waveNumber;
 
     public Vector3 startPosition;
@@ -28,12 +26,8 @@ public class TDManager : MonoBehaviour
     {
         if (inGame)
         {
-            breakTimer -= Time.deltaTime; //UI
-            if (breakTime < 0)
-            {
-                HandleWave();
-                inGameTimer += Time.deltaTime;
-            }
+            HandleWave();
+            inGameTimer += Time.deltaTime;
         }
         else if (!gameReseted)
         {
@@ -46,7 +40,6 @@ public class TDManager : MonoBehaviour
         if (inGame)
         {
             Player.position = playPosition;
-            //start spawner (consider breakTime)
             gameReseted = false;//??
         }
         else
@@ -57,7 +50,6 @@ public class TDManager : MonoBehaviour
     }
     public void ResetGame()
     {
-        breakTimer = breakTime;
         inGameTimer = 0f;
         waveNumber = 0;
         Player.position = startPosition;
@@ -66,28 +58,18 @@ public class TDManager : MonoBehaviour
     }
     public void HandleWave()
     {
-        waveTimer -= Time.deltaTime;
         if (waveNumber == 0)
         {
-            if (waveTimer < 0)
-            {
-                waveNumber++;
-                breakTimer = breakTime;
-                WaveManager.StartCoroutine(WaveManager.StartWave1());
-            }
+            waveNumber++;
+            WaveManager.StartCoroutine(WaveManager.StartWave1());
         }
         else if (waveNumber == 1)
         {
-            if (waveTimer < 0)
-            {
-                waveNumber++;
-                breakTimer = breakTime;
-                WaveManager.StartCoroutine(WaveManager.StartWave2());
-            }
+            waveNumber++;
+            WaveManager.StartCoroutine(WaveManager.StartWave2());
         }
         else
         {
-
             WaveManager.StartCoroutine(WaveManager.SpawnInfiniteWave());
         }
     }
