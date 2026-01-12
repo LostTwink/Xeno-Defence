@@ -4,19 +4,12 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-[System.Serializable]
-public class Record
-{
-    public string name = "Player";
-    public float value = 0f; 
-}
-
 public class Leaderboard : MonoBehaviour
 {
     public static Leaderboard Instance;
 
     [Header("UI")]
-    public TextMeshProUGUI leaderboardText;
+    public TextMeshPro leaderboardText;
     public GameObject recordInputPanel;
     public InputField nameInput;
 
@@ -46,7 +39,7 @@ public class Leaderboard : MonoBehaviour
         nameInput.text = "";
     }
 
-    // Сабмит через инспектор на клаве
+    // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
     public void SubmitRecord()
     {
         string playerName = string.IsNullOrWhiteSpace(nameInput.text)
@@ -96,11 +89,11 @@ public class Leaderboard : MonoBehaviour
 
     public void RefreshUI()
     {
-        string text = "<b>ЛИДЕРБОРД</b>\n";
+        string text = "<b>Records</b>\n";
 
         for (int i = 0; i < records.Count; i++)
         {
-            text += $"{i + 1}. {records[i].name} — {records[i].value:F2}\n";
+            text += $"{i + 1}. {records[i].name} - {records[i].value:F2}\n";
         }
 
         leaderboardText.text = text;
@@ -111,4 +104,11 @@ public class Leaderboard : MonoBehaviour
 class RecordsWrapper
 {
     public List<Record> records;
+}
+
+[System.Serializable]
+public class Record
+{
+    public string name = "Player";
+    public float value = 0f; 
 }

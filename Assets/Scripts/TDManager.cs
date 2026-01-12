@@ -9,15 +9,10 @@ public class TDManager : MonoBehaviour
 
     public WaveManager WaveManager;
     public float inGameTimer;
-
-    public Vector3 startPosition;
-    public Vector3 playPosition;
-    public Transform Player;
     public void Awake()
     {
         HandleGameStateChange(this, new(false));
         GameStateChanged += HandleGameStateChange;
-        Player.position = startPosition;
     }
     public void Update()
     {
@@ -29,7 +24,6 @@ public class TDManager : MonoBehaviour
         inGame = arg.state;
         if (inGame)
         {
-            Player.position = playPosition;
             StartCoroutine(WaveManager.StartWave1());
         }
         else
@@ -41,7 +35,11 @@ public class TDManager : MonoBehaviour
     public void ResetGame()
     {
         inGameTimer = 0f;
-        Player.position = startPosition;
         WaveManager.StopAllWaves();
+    }
+    public void StartGame()
+    {
+        EventBus.Invoke(this, new GameStateChangedEventArgs(true));
+        Debug.Log("Game Started");
     }
 }
