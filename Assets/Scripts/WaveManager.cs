@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Events;
 
 public class WaveManager : MonoBehaviour
 {
@@ -21,6 +22,11 @@ public class WaveManager : MonoBehaviour
     public float intervalDecreasePerWave = 0.1f; // Уменьшение каждые N врагов
     public int enemiesBeforeIntervalDecrease = 10;
 
+    [Header("Pre-Wave Countdown")]
+    public int preWaveCountdownSeconds = 3; // N раз по секунде
+    public UnityEvent<int> onPreWaveCountdownTick; // Invoked each second with remaining seconds
+    public UnityEvent onPreWaveCountdownFinished; // Invoked when countdown completes
+
     private int currentWave = 0;
     private bool waveActive = false;
     private float currentInfiniteInterval;
@@ -38,6 +44,7 @@ public class WaveManager : MonoBehaviour
     {
         //задержка перед началом N раз по секунде с выводом в UI
         yield return new WaitUntil(() => EnemyManager.Instance.aliveEnemies == 0);
+        yield return StartCoroutine(PreWaveCountdown(preWaveCountdownSeconds));
         currentWave = 1;
         Debug.Log("Wave 1 started!");
         StartCoroutine(SpawnWave(0, wave1Enemies, wave1SpawnInterval)); // Одна сторона (index 0)
@@ -47,6 +54,7 @@ public class WaveManager : MonoBehaviour
     {
         //задержка перед началом N раз по секунде с выводом в UI
         yield return new WaitUntil(() => EnemyManager.Instance.aliveEnemies == 0);
+        yield return StartCoroutine(PreWaveCountdown(preWaveCountdownSeconds));
         currentWave = 2;
         Debug.Log("Wave 2 started!");
         StartCoroutine(SpawnWave(0, wave2EnemiesPerSide, wave2SpawnInterval));
@@ -58,9 +66,28 @@ public class WaveManager : MonoBehaviour
     {
         //задержка перед началом N раз по секунде с выводом в UI
         yield return new WaitUntil(() => EnemyManager.Instance.aliveEnemies == 0);
+        yield return StartCoroutine(PreWaveCountdown(preWaveCountdownSeconds));
         currentWave = 3;
         Debug.Log("Infinite Wave 3 started!");
         StartCoroutine(SpawnInfiniteWave());
+    }
+
+    // Countdown invoked before waves start. Ticks once per second.
+    public IEnumerator PreWaveCountdown(int seconds)
+    {
+        if (seconds <= 0)
+        {
+            onPreWaveCountdownFinished?.Invoke();
+            yield break;
+        }
+
+        for (int s = seconds; s > 0; s--)
+        {
+            onPreWaveCountdownTick?.Invoke(s);
+            yield return new WaitForSeconds(1f);
+        }
+
+        onPreWaveCountdownFinished?.Invoke();
     }
 
     IEnumerator SpawnWave(int spawnerIndex, int enemyCount, float spawnInterval)

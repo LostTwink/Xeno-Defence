@@ -31,4 +31,12 @@ public static class EventBus
                 break;
         }
     }
+    public class EnemyDiedEventArgs : EventArgs
+    {
+        public int enemyId;
+        public EnemyDiedEventArgs(int enemyId)
+        {
+            this.enemyId = enemyId;
+        }
+    }
 }
