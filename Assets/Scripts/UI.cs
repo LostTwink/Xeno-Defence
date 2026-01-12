@@ -1,6 +1,5 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
 
 public class UI : MonoBehaviour
 {
@@ -13,7 +12,7 @@ public class UI : MonoBehaviour
     }
     private void OnCountdownFinished()
     {
-
+        countdown.text = $"Волна началсь";
     }
     private void OnCountdownTick(int time)
     {
