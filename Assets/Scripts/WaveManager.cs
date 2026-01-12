@@ -1,0 +1,121 @@
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
+public class WaveManager : MonoBehaviour
+{
+    [Header("Wave Settings")]
+    public Spawner[] spawners = new Spawner[4]; // 4 спаунера
+    public GameObject skeletonPrefab; // Для fallback
+
+    [Header("Wave 1 (One Side)")]
+    public int wave1Enemies = 10;
+    public float wave1SpawnInterval = 1.5f;
+
+    [Header("Wave 2 (Two Sides)")]
+    public int wave2EnemiesPerSide = 15;
+    public float wave2SpawnInterval = 1.2f;
+
+    [Header("Wave 3 (Infinite)")]
+    public float initialInfiniteInterval = 2f;
+    public float intervalDecreasePerWave = 0.1f; // Уменьшение каждые N врагов
+    public int enemiesBeforeIntervalDecrease = 10;
+
+    private int currentWave = 0;
+    private bool waveActive = false;
+    private float currentInfiniteInterval;
+
+    void Start()
+    {
+        if (spawners.Length != 4)
+        {
+            Debug.LogError("WaveManager: Exactly 4 spawners required!");
+        }
+        StartCoroutine(StartWave1());
+        currentInfiniteInterval = initialInfiniteInterval;
+    }
+
+    IEnumerator StartWave1()
+    {
+        yield return new WaitUntil(() => EnemyManager.Instance.aliveEnemies == 0);
+        currentWave = 1;
+        Debug.Log("Wave 1 started!");
+        StartCoroutine(SpawnWave(0, wave1Enemies, wave1SpawnInterval)); // Одна сторона (index 0)
+    }
+
+    IEnumerator StartWave2()
+    {
+        yield return new WaitUntil(() => EnemyManager.Instance.aliveEnemies == 0);
+        currentWave = 2;
+        Debug.Log("Wave 2 started!");
+        StartCoroutine(SpawnWave(0, wave2EnemiesPerSide, wave2SpawnInterval));
+        yield return null; // Параллельно
+        StartCoroutine(SpawnWave(1, wave2EnemiesPerSide, wave2SpawnInterval)); // Две стороны
+    }
+
+    IEnumerator StartInfiniteWave()
+    {
+        yield return new WaitUntil(() => EnemyManager.Instance.aliveEnemies == 0);
+        currentWave = 3;
+        Debug.Log("Infinite Wave 3 started!");
+        StartCoroutine(SpawnInfiniteWave());
+    }
+
+    IEnumerator SpawnWave(int spawnerIndex, int enemyCount, float spawnInterval)
+    {
+        waveActive = true;
+        for (int i = 0; i < enemyCount; i++)
+        {
+            if (spawners[spawnerIndex] != null)
+            {
+                spawners[spawnerIndex].SpawnSkeleton();
+            }
+            else if (skeletonPrefab != null)
+            {
+                // Fallback
+                Spawner tempSpawner = spawners[spawnerIndex]?.GetComponent<Spawner>();
+                tempSpawner?.SpawnSkeleton();
+            }
+            yield return new WaitForSeconds(spawnInterval);
+        }
+        waveActive = false;
+    }
+
+    IEnumerator SpawnInfiniteWave()
+    {
+        int spawnedSinceDecrease = 0;
+        while (true) // Бесконечно
+        {
+            int randomSpawnerIndex = Random.Range(0, 4);
+            if (spawners[randomSpawnerIndex] != null)
+            {
+                spawners[randomSpawnerIndex].SpawnSkeleton();
+                spawnedSinceDecrease++;
+            }
+
+            if (spawnedSinceDecrease >= enemiesBeforeIntervalDecrease)
+            {
+                currentInfiniteInterval = Mathf.Max(0.3f, currentInfiniteInterval - intervalDecreasePerWave);
+                spawnedSinceDecrease = 0;
+                Debug.Log($"Infinite wave interval decreased to {currentInfiniteInterval}");
+            }
+
+            yield return new WaitForSeconds(currentInfiniteInterval);
+        }
+    }
+
+    void Update()
+    {
+        if (!waveActive && EnemyManager.Instance.aliveEnemies == 0)
+        {
+            if (currentWave == 1)
+            {
+                StartCoroutine(StartWave2());
+            }
+            else if (currentWave == 2)
+            {
+                StartCoroutine(StartInfiniteWave());
+            }
+        }
+    }
+}
